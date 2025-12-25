@@ -35,6 +35,7 @@ const ProductView = () => {
         fetchProductData();
     },[id]);
     if (loading) return <h2 className="text-center mt-10">Loading...</h2>;
+    if (error) return <h2 className="text-center mt-10">Error: {error}</h2>;
     if (!product) return <h2 className="text-center mt-10">Product not found</h2>;
 
     const handleAddToCart = () => {

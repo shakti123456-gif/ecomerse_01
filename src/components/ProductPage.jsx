@@ -8,13 +8,10 @@ const ProductPage = () => {
   const navigate = useNavigate();
   const [productData,setProductData]=useState([]);
   const [ActualProductData,setActualProductData]=useState([]);
-  const [loading,setLoading]=useState(false)
-  const [error,setError]=useState(null)
   const [search,setSearch]=useState("")
 
   useEffect(() => {
   const fetchProductData = async () => {
-    setLoading(true);
     try {
       const response = await axios.get('https://fakestoreapi.com/products');
       console.log("Fetched product data:", response.data);
@@ -22,9 +19,7 @@ const ProductPage = () => {
       setActualProductData(response.data);
 
     } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+      console.log(err.message);
     }
   };
 

@@ -4,7 +4,6 @@ import { CartContext } from "./CartContext";
 const AddCart = () => {
   const {
     cart=[],
-    addToCart,
     increaseQty,
     decreaseQty,
     removeItem,
