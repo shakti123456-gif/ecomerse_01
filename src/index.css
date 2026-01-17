@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@config {
+  content: ["./src/**/*.{js,jsx,ts,tsx}"];
+}
 
 
 
