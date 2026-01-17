@@ -1,87 +1,98 @@
-import React from 'react'
-import axios from 'axios'
-import { useParams,useNavigate } from 'react-router-dom'
-import { useContext } from "react";
-import { CartContext } from "./CartContext";
-
-
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import "./ProductPage.css";
 
 const ProductView = () => {
+  const navigate = useNavigate();
 
-  const { addToCart } = useContext(CartContext);
+  const [productData, setProductData] = useState([]);
+  const [actualProductData, setActualProductData] = useState([]);
+  const [search, setSearch] = useState("");
 
-    const {id}=useParams();
-    const navigate=useNavigate();
-    const [product,setProductData]=React.useState([]);
-    const [loading,setLoading]=React.useState(false);
-    const [error,setError]=React.useState(null);
+  useEffect(() => {
+    const fetchProductData = async () => {
+      try {
+        const response = await axios.get("https://fakestoreapi.com/products");
+        setProductData(response.data);
+        setActualProductData(response.data);
+      } catch (err) {
+        console.log(err.message);
+      }
+    };
 
-    React.useEffect(()=>{
-        const fetchProductData =async()=>{
-            setLoading(true)
-            try{
-                const response =await axios.get('https://fakestoreapi.com/products/'+id);
-                setProductData(response.data);
-            }
-            catch(err){
-                setError(err.message);
-            }
-            finally{
-                setLoading(false);
-            }
+    fetchProductData();
+  }, []);
 
-        }
-
-        fetchProductData();
-    },[id]);
-    if (loading) return <h2 className="text-center mt-10">Loading...</h2>;
-    if (error) return <h2 className="text-center mt-10">Error: {error}</h2>;
-    if (!product) return <h2 className="text-center mt-10">Product not found</h2>;
-
-    const handleAddToCart = () => {
-      addToCart(product);
-      navigate('/cart');
+  const filterProductData = (value) => {
+    if (value === "") {
+      setProductData(actualProductData);
+      return;
     }
 
+    const filtered = actualProductData.filter((item) =>
+      item.title.toLowerCase().includes(value.toLowerCase())
+    );
+
+    setProductData(filtered);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center items-start p-6">
-      <div className="bg-white rounded-xl shadow-lg max-w-4xl w-full flex flex-col md:flex-row gap-6 p-6">
-        {/* Image */}
-        <img
-            src={product?.image}
-            alt={product?.title}
-            className="w-full h-64 object-contain rounded-lg"
-            />
+    <div className="page-container">
 
-        {/* Details */}
-        <div className="flex flex-col justify-start md:w-1/2">
-          <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
-          <p className="text-gray-500 mb-2">
-            Category: <span className="font-semibold">{product.category}</span>
-          </p>
-          <div className="text-2xl font-bold text-green-600 mb-4">${product.price}</div>
-          <p className="text-gray-700 mb-6">{product.description}</p>
+      {/* SIDEBAR */}
+      <div className="sidebar">
+        <h2 className="sidebar-title">Search</h2>
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            filterProductData(e.target.value);
+          }}
+        />
+      </div>
 
-          <div className="flex gap-4">
-            <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-              onClick={handleAddToCart}>
-              Add to Cart
-            </button>
-            <button
-              onClick={() => navigate(-1)}
-              className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition"
-            >
-              Back
-            </button>
-          </div>
+      {/* PRODUCT GRID */}
+      <div className="content">
+        <div className="product-grid">
+          {productData.map((product) => (
+            <div className="product-card" key={product.id}>
+
+              <img
+                src={product.image}
+                alt={product.title}
+                className="product-image"
+                onClick={() => navigate(`/product/${product.id}`)}
+              />
+
+              <h2 className="product-title">
+                {product.title.substring(0, 35)}...
+              </h2>
+
+              <p className="product-desc">
+                {product.description.substring(0, 60)}...
+              </p>
+
+              <div className="product-price">
+                ${product.price}
+              </div>
+
+              <Link to={`/product/${product.id}`}>
+                <button className="product-btn">
+                  View Product
+                </button>
+              </Link>
+
+            </div>
+          ))}
         </div>
       </div>
+
     </div>
   );
-  
-}
+};
 
-
-
-export default ProductView
+export default ProductView;

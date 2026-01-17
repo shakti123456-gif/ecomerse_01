@@ -47,62 +47,64 @@ const ProductPage = () => {
     
 
   return (
+  <div className="flex min-h-screen bg-gray-50">
 
-    <>
+    {/* LEFT SIDEBAR */}
+    <div className="w-64 p-4 bg-gray-100 border-r">
+      <h2 className="text-lg font-semibold mb-3">Search</h2>
+      <input
+        type="text"
+        placeholder="Search products..."
+        className="w-full p-2 border rounded"
+        value={search}
+        onChange={(e) => {
+          setSearch(e.target.value);
+          filterProductData(e.target.value);
+        }}
+      />
+    </div>
 
-  {/* LEFT SIDEBAR (Search Bar) */}
-      <div className="w-64 p-4 bg-gray-100 h-screen">
-        <h2 className="text-lg font-semibold mb-3">Search</h2>
-        <input
-          type="text"
-          placeholder="Search products..."
-          className="w-full p-2 border rounded"
-          value={search}
-          
-          onChange={(e) => 
-          {
-            setSearch(e.target.value);
-            filterProductData(e.target.value)
-          }}
-        />
+    {/* PRODUCT GRID */}
+    <div className="flex-1 p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+        {productData.map((product) => (
+          <div
+            key={product.id}
+            className="bg-white p-4 shadow rounded-lg hover:shadow-lg transition"
+          >
+            <img
+              src={product.image}
+              alt={product.title}
+              className="h-40 w-full object-contain mb-3 cursor-pointer"
+              onClick={() => navigate(`/product/${product.id}`)}
+            />
+
+            <h2 className="font-semibold text-sm mb-1 line-clamp-2">
+              {product.title}
+            </h2>
+
+            <p className="text-gray-500 text-xs mb-2 line-clamp-3">
+              {product.description}
+            </p>
+
+            <div className="font-bold text-green-600 mb-3">
+              ${product.price}
+            </div>
+
+            <Link to={`/product/${product.id}`}>
+              <button className="w-full bg-blue-600 text-white text-sm py-1.5 rounded hover:bg-blue-700">
+                View Product
+              </button>
+            </Link>
+          </div>
+        ))}
+
       </div>
+    </div>
 
-      <div className="p-4 flex flex-wrap gap-4">
-    {productData.map((product) => (
-      <div
-        key={product.id}
-        className="w-40 bg-white p-2 shadow rounded-lg hover:shadow-md transition"
-      >
-          <img
-            src={product.image}
-            alt={product.title}
-            className="h-28 w-full object-contain mb-2"
-            onClick={() => navigate(`/product/${product.id}`)}
-          />
-
-        <h2 className="font-bold text-sm h-10 overflow-hidden">
-          {product.title.substring(0, 35)}...
-        </h2>
-
-        <p className="text-gray-600 text-xs h-12 overflow-hidden mb-2">
-          {product.description.substring(0, 60)}...
-        </p>
-
-        <div className="font-bold text-green-600 text-sm mb-2">
-          ${product.price}
-        </div>
-
-        <Link to={`/product/${product.id}`}>
-        <button className="w-full bg-blue-600 text-white text-xs py-1 rounded hover:bg-blue-700">
-          ProductView
-        </button>
-        </Link>
-      </div>
-    ))}
   </div>
-
-  </>
-  );
+);
 }
 
 
