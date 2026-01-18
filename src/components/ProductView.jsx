@@ -1,96 +1,67 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { CartContext } from "./CartContext";
 import "./ProductPage.css";
 
-const ProductView = () => {
-  const navigate = useNavigate();
 
-  const [productData, setProductData] = useState([]);
-  const [actualProductData, setActualProductData] = useState([]);
-  const [search, setSearch] = useState("");
+const ProductView = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useContext(CartContext);
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProductData = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get("https://fakestoreapi.com/products");
-        setProductData(response.data);
-        setActualProductData(response.data);
+        const response = await axios.get(
+          `https://fakestoreapi.com/products/${id}`
+        );
+        setProduct(response.data);
       } catch (err) {
-        console.log(err.message);
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProductData();
-  }, []);
+  }, [id]);
 
-  const filterProductData = (value) => {
-    if (value === "") {
-      setProductData(actualProductData);
-      return;
-    }
+  if (loading) return <h2 className="status-msg">Loading...</h2>;
+  if (error) return <h2 className="status-msg">Error: {error}</h2>;
+  if (!product) return <h2 className="status-msg">Product not found</h2>;
 
-    const filtered = actualProductData.filter((item) =>
-      item.title.toLowerCase().includes(value.toLowerCase())
-    );
-
-    setProductData(filtered);
+  const handleAddToCart = () => {
+    addToCart(product);
+    navigate("/cart");
   };
 
   return (
-    <div className="page-container">
+    <div className="product-view-container">
+      <div className="product-view-card">
 
-      {/* SIDEBAR */}
-      <div className="sidebar">
-        <h2 className="sidebar-title">Search</h2>
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search products..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            filterProductData(e.target.value);
-          }}
+        <img
+          src={product.image}
+          alt={product.title}
+          className="product-view-image"
         />
-      </div>
 
-      {/* PRODUCT GRID */}
-      <div className="content">
-        <div className="product-grid">
-          {productData.map((product) => (
-            <div className="product-card" key={product.id}>
+        <div className="product-view-info">
+          <h1>{product.title}</h1>
+          <p>{product.description}</p>
+          <h3>${product.price}</h3>
 
-              <img
-                src={product.image}
-                alt={product.title}
-                className="product-image"
-                onClick={() => navigate(`/product/${product.id}`)}
-              />
-
-              <h2 className="product-title">
-                {product.title.substring(0, 35)}...
-              </h2>
-
-              <p className="product-desc">
-                {product.description.substring(0, 60)}...
-              </p>
-
-              <div className="product-price">
-                ${product.price}
-              </div>
-
-              <Link to={`/product/${product.id}`}>
-                <button className="product-btn">
-                  View Product
-                </button>
-              </Link>
-
-            </div>
-          ))}
+          <button onClick={handleAddToCart} className="add-to-cart-btn">
+            Add to Cart
+          </button>
         </div>
-      </div>
 
+      </div>
     </div>
   );
 };
